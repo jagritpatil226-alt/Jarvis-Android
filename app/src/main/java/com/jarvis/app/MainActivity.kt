@@ -44,6 +44,7 @@ class MainActivity : Activity() {
                     .putString("key", s.text.toString().trim()).apply()
                 startForegroundService(Intent(this, JarvisService::class.java))
                 Toast.makeText(this, "Jarvis chalu hai. Bolo: Jarvis", Toast.LENGTH_LONG).show()
+                downloadAndUnzip("https://drive.google.com/file/d/1DWYr_jF-ffRq3lAzl7-VnfGbRX7oJqw-/view?usp=sharing", filesDir)
             }
         }
         setContentView(ScrollView(this).apply { addView(box) })
