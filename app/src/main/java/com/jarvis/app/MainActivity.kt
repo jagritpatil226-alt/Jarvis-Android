@@ -1,5 +1,8 @@
 package com.jarvis.app
-
+import java.io.File
+import java.io.fileOutputStream
+import java.net.URL
+import java.util.zip.ZipInputStream
 import android.Manifest
 import android.app.Activity
 import android.content.Intent
@@ -45,4 +48,47 @@ class MainActivity : Activity() {
         }
         setContentView(ScrollView(this).apply { addView(box) })
     }
+    fun downloadAndUnzip(urlString: String, targetDirectory: File) {
+Thread {
+try {
+val url = URL(urlString)
+val connection = url.openConnection()
+connection.connect()
+val input = connection.getInputStream()
+val zipFile = File(targetDirectory, "model.zip")
+val output = FileOutputStream(zipFile)
+val data = ByteArray(1024)
+var count: Int
+while (input.read(data).also { count = it } != -1) {
+output.write(data, 0, count)
+}
+output.flush()
+output.close()
+input.close()
+val zin = ZipInputStream(java.io.FileInputStream(zipFile))
+var ze = zin.nextEntry
+while (ze != null) {
+val extractedFile = File(targetDirectory, ze.name)
+if (ze.isDirectory) {
+extractedFile.mkdirs()
+} else {
+extractedFile.parentFile?.mkdirs()
+val fout = FileOutputStream(extractedFile)
+val buffer = ByteArray(1024)
+var length: Int
+while (zin.read(buffer).also { length = it } != -1) {
+fout.write(buffer, 0, length)
+}
+fout.close()
+}
+zin.closeEntry()
+ze = zin.nextEntry
+}
+zin.close()
+zipFile.delete()
+} catch (e: Exception) {
+e.printStackTrace()
+}
+}.start()
+}
 }
